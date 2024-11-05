@@ -1,4 +1,4 @@
-package com.example.tintok
+package com.noblet.tintok
 
 import io.flutter.embedding.android.FlutterActivity
 

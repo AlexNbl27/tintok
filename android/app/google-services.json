@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "695365374285",
+    "project_id": "tintok-2701",
+    "storage_bucket": "tintok-2701.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:695365374285:android:4312658f9359e6dc42e704",
+        "android_client_info": {
+          "package_name": "com.noblet.tintok"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGS3IYhJq-nAm4PCia3JZrlLQ76IL68y4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
