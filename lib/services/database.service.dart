@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum ConditionType {
@@ -19,11 +18,12 @@ class DatabaseService {
   DatabaseService._internal();
   static DatabaseService get instance => _instance;
 
-  final sb.SupabaseClient supabase = sb.Supabase.instance.client;
+  final SupabaseClient supabase = Supabase.instance.client;
 
   Future<List<Map<String, dynamic>>> getElements({
     required String table,
     List<String>? columns,
+    List<String>? joinTables,
     String? conditionOnColumn,
     dynamic conditionValue,
     ConditionType? conditionType,
@@ -32,8 +32,16 @@ class DatabaseService {
     int? limit,
     int? offset,
   }) async {
-    sb.PostgrestFilterBuilder<List<Map<String, dynamic>>> query =
-        supabase.from(table).select(columns?.join(", ") ?? '*');
+    String selectColumns = columns?.join(", ") ?? '*';
+    if (joinTables != null && joinTables.isNotEmpty) {
+      String joinSelect =
+          joinTables.map((table) => '$table!inner(*)').join(", ");
+      selectColumns = "$selectColumns, $joinSelect";
+    }
+
+    PostgrestFilterBuilder<List<Map<String, dynamic>>> query =
+        supabase.from(table).select(selectColumns);
+
     if (conditionOnColumn != null &&
         conditionValue != null &&
         conditionType != null) {
@@ -78,6 +86,18 @@ class DatabaseService {
     } catch (error) {
       debugPrint('Error during query: $error');
       throw Exception('Error during query');
+    }
+  }
+
+  Future<void> insertElement({
+    required String table,
+    required Map<String, dynamic> values,
+  }) async {
+    try {
+      await supabase.from(table).insert(values);
+    } catch (error) {
+      debugPrint('Error during insertion: $error');
+      throw Exception('Error during insertion');
     }
   }
 }

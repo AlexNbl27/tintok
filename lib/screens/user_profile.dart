@@ -1,54 +1,88 @@
 import 'package:flutter/material.dart';
-import 'package:tintok/models/comment.dart';
+import 'package:tintok/constants/supabase.constant.dart';
 import 'package:tintok/models/video.model.dart';
 import 'package:tintok/models/user.model.dart';
-import 'package:tintok/widgets/comment_card.widget.dart';
+import 'package:tintok/services/database.service.dart';
 import 'package:tintok/widgets/preview_video.widget.dart';
 
 class UserProfile extends StatelessWidget {
   final User user;
+  final DatabaseService database = DatabaseService.instance;
 
-  const UserProfile({super.key, required this.user});
+  UserProfile({super.key, required this.user});
+
+  Future<List<Video>> _getLikedVideos() async {
+    return await database.getElements(
+      table: SupabaseConstant.likedVideosTable,
+      conditionOnColumn: 'author_uuid',
+      conditionType: ConditionType.equal,
+      conditionValue: user.uuid,
+      joinTables: [SupabaseConstant.videosTable],
+    ).then((List<Map<String, dynamic>> likes) async {
+      return Future.wait(likes.map((like) async {
+        final videoMap = like['video'] as Map<String, dynamic>;
+        return await Video.fromMap(videoMap);
+      }).toList());
+    });
+  }
+
+  Future<List<Video>> _getCreatedVideos() async {
+    final videoMaps = await database.getElements(
+      table: SupabaseConstant.videosTable,
+      conditionOnColumn: 'author_uuid',
+      conditionType: ConditionType.equal,
+      conditionValue: user.uuid,
+    );
+    return Future.wait(
+        videoMaps.map((e) async => await Video.fromMap(e)).toList());
+  }
 
   @override
   Widget build(BuildContext context) {
-    final post = Video(
-      uuid: "1",
-      title: "Video",
-      author: user,
-      videoUrl: "https://www.youtube.com/watch?v=x7JnA8ssuqY",
-      miniatureUrl:
-          "https://w0.peakpx.com/wallpaper/82/735/HD-wallpaper-iphone-for-iphone-12-iphone-11-and-iphone-x-iphone-wallp-fond-d-ecran-telephone-fond-d-ecran-iphone-apple-fond-ecran-gratuit-paysage-cool-sphere.jpg",
-      createdAt: DateTime.now(),
-    );
     return DefaultTabController(
       length: 2, // Deux onglets : Posts et Comments
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${user.username} \'s Profile'),
+          title: Text('${user.username}\'s Profile'),
           bottom: const TabBar(
             tabs: [
-              Tab(text: "Posts"), // Titre pour l'onglet Posts
-              Tab(text: "Comments"), // Titre pour l'onglet Comments
+              Tab(text: "Vidéos créées"),
+              Tab(text: "Vidéos likées"),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            PostsTab(posts: [
-              post,
-              post,
-              post,
-              post,
-              post,
-            ]),
-            CommentsTab(comments: [
-              Comment(
-                date: DateTime.now(),
-                text: "Commentaire",
-                author: user,
-              ),
-            ]),
+            FutureBuilder<List<Video>>(
+              future: _getCreatedVideos(),
+              builder:
+                  (BuildContext context, AsyncSnapshot<List<Video>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox();
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Erreur : ${snapshot.error}'));
+                } else if (snapshot.hasData) {
+                  return PostsTab(videos: snapshot.data!);
+                } else {
+                  return const Center(child: Text('Aucune vidéo trouvée.'));
+                }
+              },
+            ),
+            FutureBuilder<List<Video>>(
+              future: _getLikedVideos(),
+              builder:
+                  (BuildContext context, AsyncSnapshot<List<Video>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox();
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Erreur : ${snapshot.error}'));
+                } else if (snapshot.hasData) {
+                  return PostsTab(videos: snapshot.data!);
+                } else {
+                  return const Center(child: Text('Aucune vidéo trouvée.'));
+                }
+              },
+            ),
           ],
         ),
       ),
@@ -57,13 +91,13 @@ class UserProfile extends StatelessWidget {
 }
 
 class PostsTab extends StatelessWidget {
-  final List<Video> posts;
+  final List<Video> videos;
+  const PostsTab({super.key, required this.videos});
 
-  const PostsTab({super.key, required this.posts});
-
+  @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      itemCount: posts.length,
+      itemCount: videos.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
         crossAxisSpacing: 1,
@@ -71,31 +105,11 @@ class PostsTab extends StatelessWidget {
         childAspectRatio: 9 / 16,
       ),
       itemBuilder: (context, index) {
-        final post = posts[index];
+        final video = videos[index];
         return ClipRRect(
           child: PreviewVideoWidget(
-            post: post,
+            video: video,
           ),
-        );
-      },
-    );
-  }
-}
-
-class CommentsTab extends StatelessWidget {
-  final List<Comment> comments;
-
-  const CommentsTab({super.key, required this.comments});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: comments.length,
-      padding: const EdgeInsets.all(16),
-      itemBuilder: (context, index) {
-        final comment = comments[index];
-        return CommentWidget(
-          comment: comment,
         );
       },
     );

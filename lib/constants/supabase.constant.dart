@@ -1,5 +1,6 @@
 class SupabaseConstant{
-  static const String videosTable = 'Videos';
-  static const String likedVideosTable = 'Likes';
-  static const String commentsTable = 'Comments';
+  static const String videosTable = 'video';
+  static const String likedVideosTable = 'like';
+  static const String commentsTable = 'comment';
+  static const String usersTable = 'user';
 }

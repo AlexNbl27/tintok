@@ -3,11 +3,12 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:tintok/constants/supabase.constant.dart';
 import 'package:tintok/models/comment.dart';
 import 'package:tintok/models/video.model.dart';
+import 'package:tintok/services/authentication.service.dart';
 import 'package:tintok/services/database.service.dart';
 import 'package:tintok/widgets/appbar.widget.dart';
 import 'package:tintok/widgets/comment_card.widget.dart';
-import 'package:tintok/models/user.model.dart';
 import 'package:tintok/screens/user_profile.dart';
+import 'package:tintok/widgets/comments_draggable.dart';
 import 'package:tintok/widgets/gestures_moves.dart';
 import 'package:tintok/widgets/video.widget.dart';
 
@@ -28,129 +29,25 @@ class HomeScreenState extends State<HomeScreen> {
   List<Comment> comments = [];
   late Video currentVideo;
 
-  Future<Video> _getVideo() async {
-    return await database.getElements(table: SupabaseConstant.videosTable, limit: 1).then((value) {
-      return Video.fromMap(value[0]);
-    });
-  }
+  GlobalKey<CommentsDraggableState> commentsKey =
+      GlobalKey<CommentsDraggableState>();
 
-  Future<void> _getComments() async {
-    return await currentVideo.getComments(pagination: 0).then((value) {
-      comments.addAll(value);
+  Future<Video> _getVideo() async {
+    final AuthenticationService auth = AuthenticationService.instance;
+    return await database
+        .getElements(
+            table: SupabaseConstant.videosTable,
+            limit: 1,
+            conditionOnColumn: 'author_uuid',
+            conditionValue: auth.currentUser)
+        .then((value) {
+      return Video.fromMap(value[0]);
     });
   }
 
   @override
   void initState() {
     super.initState();
-  }
-
-  void _makeSheetVisible() {
-    if (comments.isEmpty) {
-      _getComments();
-    }
-    _animateSheetTo(snaps[1]);
-  }
-
-  void _makeSheetInvisible() {
-    _animateSheetTo(snaps[0]);
-  }
-
-  void _animateSheetTo(double snap) {
-    draggableController.animateTo(snap,
-        duration: animationDuration, curve: animationCurve);
-  }
-
-  Widget _buildBottomSheet() {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: DraggableScrollableSheet(
-        controller: draggableController,
-        initialChildSize: 0.0,
-        minChildSize: 0.0,
-        maxChildSize: 1.0,
-        snap: true,
-        snapSizes: snaps,
-        expand: false,
-        builder: (BuildContext context, ScrollController scrollController) {
-          return _buildBottomSheetContent(context, scrollController);
-        },
-      ),
-    );
-  }
-
-  Widget _buildBottomSheetContent(
-      BuildContext context, ScrollController scrollController) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color.fromARGB(255, 250, 246, 246),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-      ),
-      padding: const EdgeInsets.all(20),
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _buildGesturesMoves(scrollController),
-          const SizedBox(height: 8),
-          _buildCommentsList(scrollController),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGesturesMoves(ScrollController scrollController) {
-    return GesturesMoves(
-      onTap: () {
-        scrollController.animateTo(0,
-            duration: animationDuration, curve: animationCurve);
-      },
-      onSwipeUp: () {
-        _animateSheetTo(snaps.last);
-      },
-      onSwipeDown: () {
-        _animateSheetTo(snaps[1]);
-      },
-      child: Column(
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            "Commentaires",
-            textAlign: TextAlign.start,
-            style: TextStyle(color: Colors.black, fontSize: 20),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCommentsList(ScrollController scrollController) {
-    return Flexible(
-      child: Skeletonizer(
-        enabled: comments.isEmpty,
-        child: ListView.separated(
-          controller: scrollController,
-          itemCount: comments.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: CommentWidget(comment: comments[index]),
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) => const Divider(),
-        ),
-      ),
-    );
   }
 
   Widget _buildMainContent(BuildContext context) {
@@ -168,26 +65,16 @@ class HomeScreenState extends State<HomeScreen> {
       },
       onSwipeRight: () {},
       onSwipeLeft: () {},
-      onSwipeUp: () => _makeSheetVisible(),
+      onSwipeUp: () => commentsKey.currentState?.makeSheetVisible(),
       onTap: () {
-        _makeSheetInvisible();
+        commentsKey.currentState?.makeSheetInvisible();
         videoPlayerKey.currentState?.togglePlaying();
       },
-      child: Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        color: Colors.white,
-        child: Stack(
-          children: [
-            VideoPlayerWidget(key: videoPlayerKey, post: currentVideo),
-            const Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: MyAppBar(),
-            ),
-          ],
-        ),
+      child: Stack(
+        children: [
+          VideoPlayerWidget(key: videoPlayerKey, video: currentVideo),
+          const Positioned(top: 0, left: 0, right: 0, child: MyAppBar()),
+        ],
       ),
     );
   }
@@ -195,21 +82,19 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Video>(
-      future: _getVideo(), // Appel de la méthode pour récupérer la vidéo
+      future: _getVideo(),
       builder: (BuildContext context, AsyncSnapshot<Video> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // Afficher un indicateur de chargement pendant que les données sont en cours de récupération
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          // Gérer les erreurs
           return Center(child: Text('Erreur : ${snapshot.error}'));
         } else if (snapshot.hasData) {
-          currentVideo = snapshot.data!; // Assigner la vidéo à currentVideo
+          currentVideo = snapshot.data!;
 
           return Stack(
             children: [
               _buildMainContent(context), // Utiliser la vidéo ici
-              _buildBottomSheet(),
+              CommentsDraggable(currentVideo: currentVideo, key: commentsKey),
             ],
           );
         } else {

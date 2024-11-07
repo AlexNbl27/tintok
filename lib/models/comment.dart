@@ -11,8 +11,8 @@ class Comment {
     required this.date,
   });
 
-  static fromMap(Map<String, dynamic> map) async {
-    User author = await User.getFromUuid('');
+  static Future<Comment> fromMap(Map<String, dynamic> map) async {
+    User author = await User.getFromUuid(map['author_uuid']);
     return Comment(
       text: map['content'],
       author: author,

@@ -96,24 +96,8 @@ class RegisterTab extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      try {
-                        authService.registerWithEmail(emailController.text,
-                            passwordController.text, usernameController.text);
-                      } on Exception catch (e) {
-                        if (context.mounted) {
-                          debugPrint(e.toString());
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Impossible de s\'inscrire'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      }
-                    }
-                  },
+                  onPressed: () => _register(context, formKey, emailController,
+                      passwordController, usernameController),
                   child: const Text(
                     'S\'inscrire',
                     style: TextStyle(fontSize: 18),
@@ -141,5 +125,29 @@ class RegisterTab extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _register(
+      BuildContext context,
+      GlobalKey<FormState> formKey,
+      TextEditingController emailController,
+      TextEditingController passwordController,
+      TextEditingController usernameController) async {
+    if (formKey.currentState!.validate()) {
+      try {
+        await authService.registerWithEmail(emailController.text,
+            passwordController.text, usernameController.text);
+      } catch (e) {
+        if (context.mounted) {
+          debugPrint(e.toString());
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Impossible de s\'inscrire'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 }

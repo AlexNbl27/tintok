@@ -36,20 +36,22 @@ class Video {
     );
   }
 
-  Future<List<Comment>> getComments({required int pagination}) async {
+  Future<List<Comment>?> getComments({required int pagination}) async {
     final DatabaseService database = DatabaseService.instance;
     const int nbCommentsPerPage = 10;
-    await database
-        .getElements(
-            table: SupabaseConstant.commentsTable,
-            conditionOnColumn: 'video_uuid',
-            conditionValue: uuid,
-            conditionType: ConditionType.equal,
-            offset: pagination * nbCommentsPerPage,
-            limit: nbCommentsPerPage)
-        .then((value) {
-      return (value as List).map((e) => Comment.fromMap(e)).toList();
-    });
-    throw Exception('Error while fetching comments');
+    try {
+      List<Map<String, dynamic>> list = await database.getElements(
+          table: SupabaseConstant.commentsTable,
+          conditionOnColumn: 'video_uuid',
+          conditionValue: uuid,
+          conditionType: ConditionType.equal,
+          offset: pagination * nbCommentsPerPage,
+          limit: nbCommentsPerPage);
+      List<Comment> comments = await Future.wait(
+          list.map((map) async => await Comment.fromMap(map)));
+      return comments;
+    } on Exception {
+      throw Exception('Error while fetching comments');
+    }
   }
 }
