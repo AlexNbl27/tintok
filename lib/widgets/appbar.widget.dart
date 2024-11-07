@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:tintok/services/authentication.service.dart';
 
 class MyAppBar extends StatelessWidget {
   const MyAppBar({super.key});
-
+  static AuthenticationService authService = AuthenticationService.instance;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -21,12 +22,11 @@ class MyAppBar extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(
-              Icons.settings,
+              Icons.logout,
               color: Colors.white,
             ),
             onPressed: () {
-              // Action lorsque le bouton des paramètres est pressé
-              // _showSettings(context);
+              authService.signOut();              
             },
           ),
         ],

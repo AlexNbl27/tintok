@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:tintok/models/post.model.dart';
+import 'package:tintok/models/video.model.dart';
 
 class PreviewVideoWidget extends StatelessWidget {
-  final Post post;
+  final Video post;
 
   const PreviewVideoWidget({
     super.key,

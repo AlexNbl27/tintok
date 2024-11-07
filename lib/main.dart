@@ -1,47 +1,77 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tintok/firebase_options.dart';
-import 'package:tintok/providers/authentication.provider.dart';
+import 'package:tintok/screens/auth/authentication.screen.dart';
 import 'package:tintok/screens/home.screen.dart';
-import 'package:tintok/screens/login.screen.dart';
-import 'package:tintok/services/authentication.service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // await dotenv.load(fileName: ".env");
+  // await Supabase.initialize(
+  //   url: dotenv.env['SUPABASE_URL'],
+  //   anonKey: dotenv.env['SUPABASE_ANON_KEY'],
+  // );
   await Supabase.initialize(
-    url: dotenv.get('SUPABASE_URL'),
-    anonKey: dotenv.get('SUPABASE_ANON_KEY'),
+    url: 'https://llkdwyxnrooztewpqxos.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxsa2R3eXhucm9venRld3BxeG9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA3OTQwODksImV4cCI6MjA0NjM3MDA4OX0.TKoRp9wOeyIXM6y8BwFI-tIkt5_XZQmxRn6XgPEGzW0',
   );
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => AuthenticationProvider(AuthenticationService()),
-      child: const MainApp(),
-    ),
-  );
+  runApp(const MainApp());
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
+
+  @override
+  MainAppState createState() => MainAppState();
+}
+
+class MainAppState extends State<MainApp> {
+  User? _currentUser;
+  late final supabase = Supabase.instance.client;
+
+  @override
+  void initState() {
+    super.initState();
+    supabase.auth.onAuthStateChange.listen((data) {
+      final AuthChangeEvent event = data.event;
+      final Session? session = data.session;
+      switch (event) {
+        case AuthChangeEvent.initialSession:
+        case AuthChangeEvent.signedIn:
+          setState(() {
+            _currentUser = session?.user;
+          });
+          break;
+        case AuthChangeEvent.signedOut:
+          setState(() {
+            _currentUser = null;
+          });
+          break;
+        default:
+          break;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Consumer<AuthenticationProvider>(
-        builder: (BuildContext context, AuthenticationProvider value,
-            Widget? child) {
-          return Scaffold(
-            body: SafeArea(
-              top: false,
-              child: value.currentUser == null
-                  ? const LoginScreen()
-                  : const HomeScreen(),
-            ),
-          );
-        },
+      home: Scaffold(
+        body: SafeArea(
+          top: false,
+          child: _currentUser == null
+              ? const AuthenticationScreen()
+              : const HomeScreen(),
+        ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

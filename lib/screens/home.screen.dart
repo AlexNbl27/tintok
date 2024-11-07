@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:tintok/constants/supabase.constant.dart';
 import 'package:tintok/models/comment.dart';
-import 'package:tintok/models/post.model.dart';
+import 'package:tintok/models/video.model.dart';
+import 'package:tintok/services/database.service.dart';
 import 'package:tintok/widgets/appbar.widget.dart';
 import 'package:tintok/widgets/comment_card.widget.dart';
 import 'package:tintok/models/user.model.dart';
@@ -17,57 +20,35 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   final List<double> snaps = const [0, 0.6, 1];
+  final DatabaseService database = DatabaseService.instance;
   final Duration animationDuration = const Duration(milliseconds: 500);
   final Curve animationCurve = Curves.easeInOut;
   final DraggableScrollableController draggableController =
       DraggableScrollableController();
-  late Post currentPost;
+  List<Comment> comments = [];
+  late Video currentVideo;
+
+  Future<Video> _getVideo() async {
+    return await database.getElements(table: SupabaseConstant.videosTable, limit: 1).then((value) {
+      return Video.fromMap(value[0]);
+    });
+  }
+
+  Future<void> _getComments() async {
+    return await currentVideo.getComments(pagination: 0).then((value) {
+      comments.addAll(value);
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    currentPost = Post(
-      videoUrl:
-          "https://videos.pexels.com/video-files/28915821/12515365_1440_2560_60fps.mp4",
-      miniatureUrl:
-          "https://w0.peakpx.com/wallpaper/82/735/HD-wallpaper-iphone-for-iphone-12-iphone-11-and-iphone-x-iphone-wallp-fond-d-ecran-telephone-fond-d-ecran-iphone-apple-fond-ecran-gratuit-paysage-cool-sphere.jpg",
-      comments: [
-        Comment(
-          date: DateTime.now(),
-          text: "Commentaire 1",
-          author: User(
-            uuid: "151",
-            username: "johndoe",
-            email: "johndoe@gmail.com",
-            avatarUrl:
-                "https://www.pngkey.com/png/full/114-1149878_setting-user-avatar-in-specific-size-without-breaking.png",
-          ),
-        ),
-        Comment(
-          date: DateTime.now(),
-          text: "Commentaire 2",
-          author: User(
-            uuid: "151",
-            username: "johndoe",
-            email: "johndoe@gmail.com",
-            avatarUrl:
-                "https://www.pngkey.com/png/full/114-1149878_setting-user-avatar-in-specific-size-without-breaking.png",
-          ),
-        ),
-      ],
-      uuid: "1",
-      title: "Post",
-      author: User(
-        uuid: "151",
-        username: "johndoe",
-        email: "johndoe@gmail.com",
-        avatarUrl:
-            "https://www.pngkey.com/png/full/114-1149878_setting-user-avatar-in-specific-size-without-breaking.png",
-      ),
-    );
   }
 
   void _makeSheetVisible() {
+    if (comments.isEmpty) {
+      _getComments();
+    }
     _animateSheetTo(snaps[1]);
   }
 
@@ -156,17 +137,18 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCommentsList(ScrollController scrollController) {
     return Flexible(
-      child: ListView.separated(
-        controller: scrollController,
-        itemCount: currentPost.comments.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: CommentWidget(
-              comment: currentPost.comments[index],
-            ),
-          );
-        },
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
+      child: Skeletonizer(
+        enabled: comments.isEmpty,
+        child: ListView.separated(
+          controller: scrollController,
+          itemCount: comments.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: CommentWidget(comment: comments[index]),
+            );
+          },
+          separatorBuilder: (BuildContext context, int index) => const Divider(),
+        ),
       ),
     );
   }
@@ -179,7 +161,7 @@ class HomeScreenState extends State<HomeScreen> {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => UserProfile(
-              user: currentPost.author,
+              user: currentVideo.author,
             ),
           ),
         );
@@ -197,7 +179,7 @@ class HomeScreenState extends State<HomeScreen> {
         color: Colors.white,
         child: Stack(
           children: [
-            VideoPlayerWidget(key: videoPlayerKey, post: currentPost),
+            VideoPlayerWidget(key: videoPlayerKey, post: currentVideo),
             const Positioned(
               top: 0,
               left: 0,
@@ -212,11 +194,28 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        _buildMainContent(context),
-        _buildBottomSheet(),
-      ],
+    return FutureBuilder<Video>(
+      future: _getVideo(), // Appel de la méthode pour récupérer la vidéo
+      builder: (BuildContext context, AsyncSnapshot<Video> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // Afficher un indicateur de chargement pendant que les données sont en cours de récupération
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          // Gérer les erreurs
+          return Center(child: Text('Erreur : ${snapshot.error}'));
+        } else if (snapshot.hasData) {
+          currentVideo = snapshot.data!; // Assigner la vidéo à currentVideo
+
+          return Stack(
+            children: [
+              _buildMainContent(context), // Utiliser la vidéo ici
+              _buildBottomSheet(),
+            ],
+          );
+        } else {
+          return Center(child: Text('Aucune vidéo trouvée.'));
+        }
+      },
     );
   }
 }

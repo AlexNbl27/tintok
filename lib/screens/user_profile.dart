@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tintok/models/comment.dart';
-import 'package:tintok/models/post.model.dart';
+import 'package:tintok/models/video.model.dart';
 import 'package:tintok/models/user.model.dart';
 import 'package:tintok/widgets/comment_card.widget.dart';
 import 'package:tintok/widgets/preview_video.widget.dart';
@@ -12,20 +12,14 @@ class UserProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final post = Post(
+    final post = Video(
       uuid: "1",
-      title: "Post",
+      title: "Video",
       author: user,
       videoUrl: "https://www.youtube.com/watch?v=x7JnA8ssuqY",
       miniatureUrl:
           "https://w0.peakpx.com/wallpaper/82/735/HD-wallpaper-iphone-for-iphone-12-iphone-11-and-iphone-x-iphone-wallp-fond-d-ecran-telephone-fond-d-ecran-iphone-apple-fond-ecran-gratuit-paysage-cool-sphere.jpg",
-      comments: [
-        Comment(
-          date: DateTime.now(),
-          text: "Commentaire",
-          author: user,
-        ),
-      ],
+      createdAt: DateTime.now(),
     );
     return DefaultTabController(
       length: 2, // Deux onglets : Posts et Comments
@@ -63,7 +57,7 @@ class UserProfile extends StatelessWidget {
 }
 
 class PostsTab extends StatelessWidget {
-  final List<Post> posts;
+  final List<Video> posts;
 
   const PostsTab({super.key, required this.posts});
 

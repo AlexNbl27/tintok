@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:tintok/models/post.model.dart';
+import 'package:tintok/models/video.model.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
-  final Post post;
+  final Video post;
   const VideoPlayerWidget({super.key, required this.post});
 
   @override
