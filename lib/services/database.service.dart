@@ -24,6 +24,8 @@ class DatabaseService {
     required String table,
     List<String>? columns,
     List<String>? joinTables,
+    Map<String, String>?
+        relationships, // Ajout d'un paramètre pour spécifier la relation exacte
     String? conditionOnColumn,
     dynamic conditionValue,
     ConditionType? conditionType,
@@ -32,16 +34,23 @@ class DatabaseService {
     int? limit,
     int? offset,
   }) async {
+    // Concaténer les colonnes à sélectionner avec les relations exactes
     String selectColumns = columns?.join(", ") ?? '*';
+
+    // Gérer les relations en ajoutant `inner` explicitement avec la relation correcte
     if (joinTables != null && joinTables.isNotEmpty) {
-      String joinSelect =
-          joinTables.map((table) => '$table!inner(*)').join(", ");
+      String joinSelect = joinTables.map((table) {
+        final relationship = relationships?[table] ?? '$table!inner';
+        return '$relationship(*)';
+      }).join(", ");
       selectColumns = "$selectColumns, $joinSelect";
     }
 
+    // Créer la requête avec `selectColumns`
     PostgrestFilterBuilder<List<Map<String, dynamic>>> query =
         supabase.from(table).select(selectColumns);
 
+    // Appliquer la condition, si fournie
     if (conditionOnColumn != null &&
         conditionValue != null &&
         conditionType != null) {
@@ -70,18 +79,17 @@ class DatabaseService {
       }
     }
 
-    PostgrestTransformBuilder? transformedQuery;
+    PostgrestTransformBuilder transformedQuery = query;
     if (orderBy != null) {
       transformedQuery = query.order(orderBy, ascending: ascending);
     }
     if (limit != null) {
       transformedQuery =
-          transformedQuery?.range(offset ?? 0, (offset ?? 0) + limit) ??
-              query.range(offset ?? 0, (offset ?? 0) + limit);
+          transformedQuery.range(offset ?? 0, (offset ?? 0) + limit);
     }
 
     try {
-      final data = await query;
+      final data = await transformedQuery;
       return data;
     } catch (error) {
       debugPrint('Error during query: $error');

@@ -14,7 +14,7 @@ class UserProfile extends StatelessWidget {
   Future<List<Video>> _getLikedVideos() async {
     return await database.getElements(
       table: SupabaseConstant.likedVideosTable,
-      conditionOnColumn: 'author_uuid',
+      conditionOnColumn: 'user_uuid',
       conditionType: ConditionType.equal,
       conditionValue: user.uuid,
       joinTables: [SupabaseConstant.videosTable],
@@ -43,7 +43,7 @@ class UserProfile extends StatelessWidget {
       length: 2, // Deux onglets : Posts et Comments
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${user.username}\'s Profile'),
+          title: Text(user.username),
           bottom: const TabBar(
             tabs: [
               Tab(text: "Vidéos créées"),

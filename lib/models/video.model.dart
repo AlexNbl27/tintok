@@ -22,14 +22,15 @@ class Video {
     required this.miniatureUrl,
   });
 
-  static Future<Video> fromMap(Map<String, dynamic> map) async {
-    final user = await User.getFromUuid(map['author_uuid']);
+  factory Video.fromMap(Map<String, dynamic> map) {
     return Video(
       uuid: map['uuid'],
       title: map['title'],
       description: map['description'],
       createdAt: DateTime.parse(map['created_at']),
-      author: user,
+      author: map['user'] != null
+          ? User.fromMap(map['user'])
+          : (User(username: "Unknown", uuid: "", createdAt: DateTime.now())),
       videoUrl: map['url'],
       miniatureUrl:
           "https://w0.peakpx.com/wallpaper/82/735/HD-wallpaper-iphone-for-iphone-12-iphone-11-and-iphone-x-iphone-wallp-fond-d-ecran-telephone-fond-d-ecran-iphone-apple-fond-ecran-gratuit-paysage-cool-sphere.jpg",

@@ -11,13 +11,8 @@ Future<void> main() async {
   await dotenv.load(fileName: ".env");
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL']!,
-    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    anonKey: dotenv.env['SUPABASE_KEY']!,
   );
-  // await Supabase.initialize(
-  //   url: 'https://llkdwyxnrooztewpqxos.supabase.co',
-  //   anonKey:
-  //       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxsa2R3eXhucm9venRld3BxeG9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA3OTQwODksImV4cCI6MjA0NjM3MDA4OX0.TKoRp9wOeyIXM6y8BwFI-tIkt5_XZQmxRn6XgPEGzW0',
-  // );
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MainApp());
 }

@@ -12,17 +12,44 @@ class VideoPlayerWidget extends StatefulWidget {
 
 class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   late VideoPlayerController _controller;
+  bool isPlaying = true;
+
+  /// Méthode pour mettre à jour la vidéo sans recréer le widget
+  void updateVideo(Video newVideo) {
+    if (newVideo.videoUrl != widget.video.videoUrl) {
+      _controller.dispose();
+      _initializeController(newVideo);
+    }
+  }
+
+  /// Initialisation du contrôleur vidéo
+  void _initializeController(Video video) {
+    _controller = VideoPlayerController.networkUrl(Uri.parse(video.videoUrl))
+      ..initialize().then((_) {
+        setState(() {});
+      }).catchError((error) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+                Text('Erreur lors de l\'initialisation de la vidéo: $error')));
+      });
+
+    _controller.setLooping(true); 
+    _controller.play();
+  }
 
   @override
   void initState() {
     super.initState();
-    _controller =
-        VideoPlayerController.networkUrl(Uri.parse(widget.video.videoUrl))
-          ..initialize().then((_) {
-            setState(() {});
-          });
-    _controller.setLooping(true);
-    _controller.play();
+    _initializeController(widget.video);
+  }
+
+  @override
+  void didUpdateWidget(covariant VideoPlayerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.video.videoUrl != widget.video.videoUrl) {
+      _controller.dispose();
+      _initializeController(widget.video);
+    }
   }
 
   @override
@@ -31,13 +58,20 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     super.dispose();
   }
 
-  void togglePlaying() {
-    if (_controller.value.isPlaying) {
-      _controller.pause();
-    } else {
-      _controller.play();
-    }
-    setState(() {});
+  void togglePlaying() => _controller.value.isPlaying ? pause() : play();
+
+  void pause() {
+    _controller.pause();
+    setState(() {
+      isPlaying = false;
+    });
+  }
+
+  void play() {
+    _controller.play();
+    setState(() {
+      isPlaying = true;
+    });
   }
 
   @override
@@ -45,7 +79,7 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     return _controller.value.isInitialized
         ? Stack(children: [
             VideoPlayer(_controller),
-            if (!_controller.value.isPlaying)
+            if (!isPlaying)
               const Center(
                 child: Icon(Icons.play_arrow, color: Colors.white, size: 75),
               )

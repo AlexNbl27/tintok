@@ -5,18 +5,20 @@ class User {
   String uuid;
   String? avatarUrl;
   String username;
+  DateTime createdAt;
 
   User({
     required this.uuid,
     this.avatarUrl,
     required this.username,
+    required this.createdAt,
   });
 
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
       uuid: map['uuid'],
-      avatarUrl: map['avatar_url'],
       username: map['username'],
+      createdAt: DateTime.parse(map['created_at']),
     );
   }
 
