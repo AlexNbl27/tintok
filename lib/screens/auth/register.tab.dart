@@ -9,9 +9,10 @@ class RegisterTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
-    final TextEditingController usernameController = TextEditingController();
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+    final usernameController = TextEditingController();
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -19,20 +20,11 @@ class RegisterTab extends StatelessWidget {
           key: formKey,
           child: Column(
             children: [
-              TextFormField(
+              _buildTextFormField(
+                context: context,
                 controller: usernameController,
-                decoration: InputDecoration(
-                  hintText: context.translations.username,
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 20.0, horizontal: 16.0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
-                  ),
-                  prefixIcon: const Icon(Icons.person),
-                ),
+                hintText: context.translations.username,
+                icon: Icons.person,
                 keyboardType: TextInputType.name,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -42,20 +34,11 @@ class RegisterTab extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              _buildTextFormField(
+                context: context,
                 controller: emailController,
-                decoration: InputDecoration(
-                  hintText: context.translations.email,
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 20.0, horizontal: 16.0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
-                  ),
-                  prefixIcon: const Icon(Icons.email),
-                ),
+                hintText: context.translations.email,
+                icon: Icons.email,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -65,20 +48,11 @@ class RegisterTab extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              _buildTextFormField(
+                context: context,
                 controller: passwordController,
-                decoration: InputDecoration(
-                  hintText: context.translations.password,
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 20.0, horizontal: 16.0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
-                  ),
-                  prefixIcon: const Icon(Icons.lock),
-                ),
+                hintText: context.translations.password,
+                icon: Icons.lock,
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -92,16 +66,25 @@ class RegisterTab extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () => _register(context, formKey, emailController,
-                      passwordController, usernameController),
+                  onPressed: () => _register(
+                    context,
+                    formKey,
+                    emailController,
+                    passwordController,
+                    usernameController,
+                  ),
                   child: Text(
                     context.translations.register,
-                    style: const TextStyle(fontSize: 18),
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
                   ),
                 ),
               ),
@@ -109,18 +92,12 @@ class RegisterTab extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        GestureDetector(
-          onTap: () {
-            // Action pour naviguer vers l'inscription
-          },
-          child: InkWell(
-            onTap: () => DefaultTabController.of(context).animateTo(0),
-            child: Text(
-              context.translations.alreadyHaveAnAccount,
-              style: const TextStyle(
-                color: Colors.blue,
-                decoration: TextDecoration.underline,
-              ),
+        InkWell(
+          onTap: () => DefaultTabController.of(context).animateTo(0),
+          child: Text(
+            context.translations.alreadyHaveAnAccount,
+            style: const TextStyle(
+              decoration: TextDecoration.underline,
             ),
           ),
         ),
@@ -128,16 +105,47 @@ class RegisterTab extends StatelessWidget {
     );
   }
 
+  Widget _buildTextFormField({
+    required BuildContext context,
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+    required String? Function(String?) validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hintText,
+        filled: true,
+        contentPadding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none,
+        ),
+        prefixIcon: Icon(icon),
+      ),
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      validator: validator,
+    );
+  }
+
   Future<void> _register(
-      BuildContext context,
-      GlobalKey<FormState> formKey,
-      TextEditingController emailController,
-      TextEditingController passwordController,
-      TextEditingController usernameController) async {
+    BuildContext context,
+    GlobalKey<FormState> formKey,
+    TextEditingController emailController,
+    TextEditingController passwordController,
+    TextEditingController usernameController,
+  ) async {
     if (formKey.currentState!.validate()) {
       try {
-        await authService.registerWithEmail(emailController.text,
-            passwordController.text, usernameController.text);
+        await authService.registerWithEmail(
+          emailController.text,
+          passwordController.text,
+          usernameController.text,
+        );
       } catch (e) {
         if (context.mounted) {
           debugPrint(e.toString());

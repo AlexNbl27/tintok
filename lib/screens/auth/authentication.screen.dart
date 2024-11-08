@@ -6,7 +6,7 @@ import 'package:tintok/tools/extensions/context.extension.dart';
 
 class AuthenticationScreen extends StatelessWidget {
   const AuthenticationScreen({super.key});
-  static AuthenticationService authService = AuthenticationService.instance;
+  static final AuthenticationService authService = AuthenticationService.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -19,22 +19,15 @@ class AuthenticationScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                context.translations.welcome,
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
+              _buildWelcomeText(context),
               const SizedBox(height: 8),
-              Text(
-                context.translations.pleaseTypeYourInformations,
-                style: const TextStyle(fontSize: 16, color: Colors.black54),
-              ),
+              _buildInfoText(context),
               const SizedBox(height: 16),
               TabBar(
-                tabs: [Tab(text: context.translations.login), Tab(text: context.translations.register)],
+                tabs: [
+                  Tab(text: context.translations.login),
+                  Tab(text: context.translations.register)
+                ],
               ),
               const SizedBox(height: 16),
               SizedBox(
@@ -49,6 +42,27 @@ class AuthenticationScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildWelcomeText(BuildContext context) {
+    return Text(
+      context.translations.welcome,
+      style: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).colorScheme.primary,
+      ),
+    );
+  }
+
+  Widget _buildInfoText(BuildContext context) {
+    return Text(
+      context.translations.pleaseTypeYourInformations,
+      style: TextStyle(
+        fontSize: 16,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }

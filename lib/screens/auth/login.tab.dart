@@ -20,6 +20,7 @@ class LoginTab extends StatelessWidget {
           child: Column(
             children: [
               _buildTextField(
+                context: context,
                 controller: emailController,
                 hintText: context.translations.email,
                 icon: Icons.email,
@@ -29,6 +30,7 @@ class LoginTab extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               _buildTextField(
+                context: context,
                 controller: passwordController,
                 hintText: context.translations.password,
                 icon: Icons.lock,
@@ -42,6 +44,7 @@ class LoginTab extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -51,7 +54,9 @@ class LoginTab extends StatelessWidget {
                       context, formKey, emailController, passwordController),
                   child: Text(
                     context.translations.login,
-                    style: const TextStyle(fontSize: 18),
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Theme.of(context).colorScheme.onPrimary),
                   ),
                 ),
               ),
@@ -64,7 +69,6 @@ class LoginTab extends StatelessWidget {
           child: Text(
             context.translations.dontHaveAnAccount,
             style: const TextStyle(
-              color: Colors.blue,
               decoration: TextDecoration.underline,
             ),
           ),
@@ -74,6 +78,7 @@ class LoginTab extends StatelessWidget {
   }
 
   Widget _buildTextField({
+    required BuildContext context,
     required TextEditingController controller,
     required String hintText,
     required IconData icon,
@@ -86,7 +91,6 @@ class LoginTab extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText,
         filled: true,
-        fillColor: Colors.white,
         contentPadding:
             const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
         border: OutlineInputBorder(
