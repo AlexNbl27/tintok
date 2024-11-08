@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tintok/models/video.model.dart';
+import 'package:tintok/tools/extensions/context.extension.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
@@ -28,12 +29,11 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       ..initialize().then((_) {
         setState(() {});
       }).catchError((error) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content:
-                Text('Erreur lors de l\'initialisation de la vidéo: $error')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.translations.errorLoadingVideo)));
       });
 
-    _controller.setLooping(true); 
+    _controller.setLooping(true);
     _controller.play();
   }
 

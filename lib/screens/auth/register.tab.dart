@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tintok/services/authentication.service.dart';
+import 'package:tintok/tools/extensions/context.extension.dart';
 
 class RegisterTab extends StatelessWidget {
   const RegisterTab({super.key, required this.authService});
@@ -21,7 +22,7 @@ class RegisterTab extends StatelessWidget {
               TextFormField(
                 controller: usernameController,
                 decoration: InputDecoration(
-                  hintText: 'Nom d\'utilisateur',
+                  hintText: context.translations.username,
                   filled: true,
                   fillColor: Colors.white,
                   contentPadding: const EdgeInsets.symmetric(
@@ -35,7 +36,7 @@ class RegisterTab extends StatelessWidget {
                 keyboardType: TextInputType.name,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer un nom d\'utilisateur';
+                    return context.translations.pleaseTypeYourUsername;
                   }
                   return null;
                 },
@@ -44,7 +45,7 @@ class RegisterTab extends StatelessWidget {
               TextFormField(
                 controller: emailController,
                 decoration: InputDecoration(
-                  hintText: 'Email',
+                  hintText: context.translations.email,
                   filled: true,
                   fillColor: Colors.white,
                   contentPadding: const EdgeInsets.symmetric(
@@ -58,7 +59,7 @@ class RegisterTab extends StatelessWidget {
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer votre email';
+                    return context.translations.pleaseTypeYourEmail;
                   }
                   return null;
                 },
@@ -67,7 +68,7 @@ class RegisterTab extends StatelessWidget {
               TextFormField(
                 controller: passwordController,
                 decoration: InputDecoration(
-                  hintText: 'Mot de passe',
+                  hintText: context.translations.password,
                   filled: true,
                   fillColor: Colors.white,
                   contentPadding: const EdgeInsets.symmetric(
@@ -81,7 +82,7 @@ class RegisterTab extends StatelessWidget {
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer votre mot de passe';
+                    return context.translations.pleaseTypeYourPassword;
                   }
                   return null;
                 },
@@ -98,9 +99,9 @@ class RegisterTab extends StatelessWidget {
                   ),
                   onPressed: () => _register(context, formKey, emailController,
                       passwordController, usernameController),
-                  child: const Text(
-                    'S\'inscrire',
-                    style: TextStyle(fontSize: 18),
+                  child: Text(
+                    context.translations.register,
+                    style: const TextStyle(fontSize: 18),
                   ),
                 ),
               ),
@@ -114,9 +115,9 @@ class RegisterTab extends StatelessWidget {
           },
           child: InkWell(
             onTap: () => DefaultTabController.of(context).animateTo(0),
-            child: const Text(
-              'Already have an account? Sign Up',
-              style: TextStyle(
+            child: Text(
+              context.translations.alreadyHaveAnAccount,
+              style: const TextStyle(
                 color: Colors.blue,
                 decoration: TextDecoration.underline,
               ),
@@ -141,9 +142,9 @@ class RegisterTab extends StatelessWidget {
         if (context.mounted) {
           debugPrint(e.toString());
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Impossible de s\'inscrire'),
-              backgroundColor: Colors.red,
+            SnackBar(
+              content: Text(context.translations.unableToRegister),
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }

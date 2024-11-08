@@ -2,6 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:tintok/assets/theme/dark.theme.dart';
+import 'package:tintok/assets/theme/light.theme.dart';
+import 'package:tintok/constants/languages.constants.dart';
 import 'package:tintok/firebase_options.dart';
 import 'package:tintok/screens/auth/authentication.screen.dart';
 import 'package:tintok/screens/home.screen.dart';
@@ -55,6 +58,12 @@ class MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Tintok',
+      theme: LightTheme().getTheme(),
+      darkTheme: DarkTheme().getTheme(),
+      themeMode: ThemeMode.system,
+      supportedLocales: LanguagesConstant.supportedLocales,
+      localizationsDelegates: LanguagesConstant.localizationDelegates,
       home: Scaffold(
         body: SafeArea(
           top: false,

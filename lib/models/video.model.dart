@@ -10,7 +10,6 @@ class Video {
   final String? description;
   final DateTime createdAt;
   final String videoUrl;
-  final String miniatureUrl;
 
   Video({
     required this.uuid,
@@ -19,7 +18,6 @@ class Video {
     required this.createdAt,
     required this.author,
     required this.videoUrl,
-    required this.miniatureUrl,
   });
 
   factory Video.fromMap(Map<String, dynamic> map) {
@@ -32,8 +30,6 @@ class Video {
           ? User.fromMap(map['user'])
           : (User(username: "Unknown", uuid: "", createdAt: DateTime.now())),
       videoUrl: map['url'],
-      miniatureUrl:
-          "https://w0.peakpx.com/wallpaper/82/735/HD-wallpaper-iphone-for-iphone-12-iphone-11-and-iphone-x-iphone-wallp-fond-d-ecran-telephone-fond-d-ecran-iphone-apple-fond-ecran-gratuit-paysage-cool-sphere.jpg",
     );
   }
 

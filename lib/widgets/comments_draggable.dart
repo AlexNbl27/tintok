@@ -4,6 +4,7 @@ import 'package:tintok/models/comment.dart';
 import 'package:tintok/models/video.model.dart';
 import 'package:tintok/services/authentication.service.dart';
 import 'package:tintok/services/database.service.dart';
+import 'package:tintok/tools/extensions/context.extension.dart';
 import 'package:tintok/widgets/comment_card.widget.dart';
 
 class CommentsDraggable extends StatefulWidget {
@@ -109,10 +110,10 @@ class CommentsDraggableState extends State<CommentsDraggable> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  "Commentaires",
+                Text(
+                  context.translations.comments,
                   textAlign: TextAlign.start,
-                  style: TextStyle(color: Colors.black, fontSize: 20),
+                  style: const TextStyle(color: Colors.black, fontSize: 20),
                 ),
                 Expanded(
                   child: Stack(

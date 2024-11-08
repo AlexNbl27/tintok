@@ -4,6 +4,7 @@ import 'package:get_thumbnail_video/index.dart';
 import 'package:get_thumbnail_video/video_thumbnail.dart';
 import 'package:tintok/models/video.model.dart';
 import 'package:tintok/screens/video.screen.dart';
+import 'package:tintok/tools/extensions/context.extension.dart';
 
 class PreviewVideoWidget extends StatefulWidget {
   final Video video;
@@ -39,10 +40,10 @@ class PreviewVideoWidgetState extends State<PreviewVideoWidget>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return const Center(
-              child: Text('Erreur lors du chargement de la vidéo'));
+          return Center(child: Text(context.translations.errorLoadingVideo));
         } else if (!snapshot.hasData) {
-          return const Center(child: Text('Miniature indisponible'));
+          return Center(
+              child: Text(context.translations.errorLoadingThumbnail));
         }
 
         return GestureDetector(

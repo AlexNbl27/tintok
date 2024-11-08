@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tintok/models/user.model.dart';
 import 'package:tintok/screens/user_profile.dart';
 import 'package:tintok/services/authentication.service.dart';
+import 'package:tintok/tools/extensions/context.extension.dart';
 
 class MyAppBar extends StatelessWidget {
   const MyAppBar({super.key});
@@ -39,7 +40,7 @@ class MyAppBar extends StatelessWidget {
                     builder: (context) => UserProfile(
                       user: User(
                         uuid: authService.currentUser!.id,
-                        username: authService.currentUser!.userMetadata!['username'] ?? 'Mon profil',
+                        username: authService.currentUser!.userMetadata!['username'] ?? context.translations.myProfile,
                         createdAt: DateTime.parse(authService.currentUser!.createdAt),
                       ),
                     ),

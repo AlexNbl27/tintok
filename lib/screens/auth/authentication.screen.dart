@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tintok/screens/auth/login.tab.dart';
 import 'package:tintok/screens/auth/register.tab.dart';
 import 'package:tintok/services/authentication.service.dart';
+import 'package:tintok/tools/extensions/context.extension.dart';
 
 class AuthenticationScreen extends StatelessWidget {
   const AuthenticationScreen({super.key});
@@ -18,22 +19,22 @@ class AuthenticationScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Bienvenue !',
+              Text(
+                context.translations.welcome,
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Veuillez saisir vos informations',
-                style: TextStyle(fontSize: 16, color: Colors.black54),
+              Text(
+                context.translations.pleaseTypeYourInformations,
+                style: const TextStyle(fontSize: 16, color: Colors.black54),
               ),
               const SizedBox(height: 16),
-              const TabBar(
-                tabs: [Tab(text: "Se connecter"), Tab(text: "S'inscrire")],
+              TabBar(
+                tabs: [Tab(text: context.translations.login), Tab(text: context.translations.register)],
               ),
               const SizedBox(height: 16),
               SizedBox(

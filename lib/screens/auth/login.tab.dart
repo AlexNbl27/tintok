@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tintok/services/authentication.service.dart';
+import 'package:tintok/tools/extensions/context.extension.dart';
 
 class LoginTab extends StatelessWidget {
   const LoginTab({super.key, required this.authService});
@@ -20,20 +21,20 @@ class LoginTab extends StatelessWidget {
             children: [
               _buildTextField(
                 controller: emailController,
-                hintText: 'Email',
+                hintText: context.translations.email,
                 icon: Icons.email,
                 validator: (value) => value == null || value.isEmpty
-                    ? 'Veuillez entrer votre email'
+                    ? context.translations.pleaseTypeYourEmail
                     : null,
               ),
               const SizedBox(height: 16),
               _buildTextField(
                 controller: passwordController,
-                hintText: 'Mot de passe',
+                hintText: context.translations.password,
                 icon: Icons.lock,
                 obscureText: true,
                 validator: (value) => value == null || value.isEmpty
-                    ? 'Veuillez entrer votre mot de passe'
+                    ? context.translations.pleaseTypeYourPassword
                     : null,
               ),
               const SizedBox(height: 24),
@@ -48,9 +49,9 @@ class LoginTab extends StatelessWidget {
                   ),
                   onPressed: () => _login(
                       context, formKey, emailController, passwordController),
-                  child: const Text(
-                    'Se connecter',
-                    style: TextStyle(fontSize: 18),
+                  child: Text(
+                    context.translations.login,
+                    style: const TextStyle(fontSize: 18),
                   ),
                 ),
               ),
@@ -60,9 +61,9 @@ class LoginTab extends StatelessWidget {
         const SizedBox(height: 16),
         InkWell(
           onTap: () => DefaultTabController.of(context).animateTo(1),
-          child: const Text(
-            'Pas de compte ? Inscrivez-vous',
-            style: TextStyle(
+          child: Text(
+            context.translations.dontHaveAnAccount,
+            style: const TextStyle(
               color: Colors.blue,
               decoration: TextDecoration.underline,
             ),
@@ -112,9 +113,9 @@ class LoginTab extends StatelessWidget {
         debugPrint(e.toString());
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Impossible de se connecter'),
-              backgroundColor: Colors.red,
+            SnackBar(
+              content: Text(context.translations.unableToLogin),
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }

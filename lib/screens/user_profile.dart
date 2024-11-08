@@ -3,6 +3,7 @@ import 'package:tintok/constants/supabase.constant.dart';
 import 'package:tintok/models/video.model.dart';
 import 'package:tintok/models/user.model.dart';
 import 'package:tintok/services/database.service.dart';
+import 'package:tintok/tools/extensions/context.extension.dart';
 import 'package:tintok/widgets/preview_video.widget.dart';
 
 class UserProfile extends StatelessWidget {
@@ -19,10 +20,10 @@ class UserProfile extends StatelessWidget {
       conditionValue: user.uuid,
       joinTables: [SupabaseConstant.videosTable],
     ).then((List<Map<String, dynamic>> likes) async {
-      return Future.wait(likes.map((like) async {
+      return likes.map((like) {
         final videoMap = like['video'] as Map<String, dynamic>;
-        return await Video.fromMap(videoMap);
-      }).toList());
+        return Video.fromMap(videoMap);
+      }).toList();
     });
   }
 
@@ -33,8 +34,7 @@ class UserProfile extends StatelessWidget {
       conditionType: ConditionType.equal,
       conditionValue: user.uuid,
     );
-    return Future.wait(
-        videoMaps.map((e) async => await Video.fromMap(e)).toList());
+    return videoMaps.map((videoMap) => Video.fromMap(videoMap)).toList();
   }
 
   @override
@@ -44,10 +44,10 @@ class UserProfile extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(user.username),
-          bottom: const TabBar(
+          bottom: TabBar(
             tabs: [
-              Tab(text: "Vidéos créées"),
-              Tab(text: "Vidéos likées"),
+              Tab(text: context.translations.createdVideos),
+              Tab(text: context.translations.likedVideos),
             ],
           ),
         ),
@@ -60,11 +60,11 @@ class UserProfile extends StatelessWidget {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const SizedBox();
                 } else if (snapshot.hasError) {
-                  return Center(child: Text('Erreur : ${snapshot.error}'));
+                  return Center(child: Text('${context.translations.error} : ${snapshot.error}'));
                 } else if (snapshot.hasData) {
                   return PostsTab(videos: snapshot.data!);
                 } else {
-                  return const Center(child: Text('Aucune vidéo trouvée.'));
+                  return Center(child: Text(context.translations.noVideoFound));
                 }
               },
             ),
@@ -75,11 +75,11 @@ class UserProfile extends StatelessWidget {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const SizedBox();
                 } else if (snapshot.hasError) {
-                  return Center(child: Text('Erreur : ${snapshot.error}'));
+                  return Center(child: Text('${context.translations.error} : ${snapshot.error}'));
                 } else if (snapshot.hasData) {
                   return PostsTab(videos: snapshot.data!);
                 } else {
-                  return const Center(child: Text('Aucune vidéo trouvée.'));
+                  return Center(child: Text(context.translations.noVideoFound));
                 }
               },
             ),
