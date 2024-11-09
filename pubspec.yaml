@@ -24,6 +24,7 @@ dependencies:
   flutter_tools_a3studio:
     git:
       url: git@github.com:MaPharma/flutter_tools_a3studio.git
+      ref: main
   
 dev_dependencies:
   flutter_test:

@@ -7,59 +7,54 @@ import 'package:tintok/tools/extensions/context.extension.dart';
 class MyAppBar extends StatelessWidget {
   const MyAppBar({super.key});
   static AuthenticationService authService = AuthenticationService.instance;
-  
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black54, // Couleur d'arrière-plan avec transparence
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Titre de l'application à gauche
-          const Text(
-            'TinTok',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          
-          // Row pour les deux icônes à droite
-          Row(
+    return SafeArea(
+      child: Container(
+        color: Colors.transparent,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: IconTheme(
+          data: IconThemeData(color: Theme.of(context).colorScheme.surface),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Icône de profil
-              IconButton(
-                icon: const Icon(
-                  Icons.person,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => UserProfile(
-                      user: User(
-                        uuid: authService.currentUser!.id,
-                        username: authService.currentUser!.userMetadata!['username'] ?? context.translations.myProfile,
-                        createdAt: DateTime.parse(authService.currentUser!.createdAt),
-                      ),
+              Text(
+                'TinTok',
+                style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.surface,
                     ),
-                  ));
-                },
               ),
-              // Icône de déconnexion
-              IconButton(
-                icon: const Icon(
-                  Icons.logout,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  authService.signOut();
-                },
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.person),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => UserProfile(
+                            user: User(
+                              uuid: authService.currentUser!.id,
+                              username: authService
+                                      .currentUser!.userMetadata!['username'] ??
+                                  context.translations.myProfile,
+                              createdAt: DateTime.parse(
+                                  authService.currentUser!.createdAt),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.logout),
+                    onPressed: () => authService.signOut(),
+                  )
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -45,5 +45,11 @@
   "errorLoadingVideo": "An error occurred while loading the video",
   "@errorLoadingVideo": {},
   "errorLoadingThumbnail": "An error occurred while loading the thumbnail",
-  "@errorLoadingThumbnail": {}
+  "@errorLoadingThumbnail": {},
+  "addComment": "Add a comment",
+  "@addComment": {},
+  "noCommentFound": "No comment found",
+  "@noCommentFound": {},
+  "seeMore": "See more",
+  "@seeMore": {}
 }

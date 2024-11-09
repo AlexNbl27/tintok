@@ -45,5 +45,11 @@
   "errorLoadingVideo": "Ocorreu um erro ao carregar o vídeo",
   "@errorLoadingVideo": {},
   "errorLoadingThumbnail": "Ocorreu um erro ao carregar a miniatura",
-  "@errorLoadingThumbnail": {}
+  "@errorLoadingThumbnail": {},
+  "addComment": "Adicionar um comentário",
+  "@addComment": {},
+  "noCommentFound": "Nenhum comentário encontrado",
+  "@noCommentFound": {},
+  "seeMore": "Ver mais",
+  "@seeMore": {}
 }

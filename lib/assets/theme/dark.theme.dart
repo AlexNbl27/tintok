@@ -17,14 +17,21 @@ class DarkTheme extends ATheme {
   @override
   Color get success => const Color(0xFF66BB6A);
   @override
-  Color get warning => const Color(0xFFFFA726);
-  @override
-  Color get onWarning => const Color(0xFFD32F2F);
-  @override
   Color get error => const Color(0xFFD32F2F);
   @override
   Color get onError => const Color(0xFFFFFFFF);
-
+  @override
+  Color get onSurfaceContainer => const Color(0xFF333333);
+  @override
+  Color get onTertiary => const Color(0xFF9E9E9E);
+  @override
+  Color get scrim => const Color(0x66000000);
+  @override
+  Color get shadow => const Color(0x80000000);
+  @override
+  Color get surfaceContainer => const Color(0xFF1E1E1E);
+  @override
+  Color get tertiary => const Color(0xFF3F51B5);
   @override
   Brightness get statusBarIconBrightness => Brightness.light;
   @override

@@ -65,12 +65,9 @@ class MainAppState extends State<MainApp> {
       supportedLocales: LanguagesConstant.supportedLocales,
       localizationsDelegates: LanguagesConstant.localizationDelegates,
       home: Scaffold(
-        body: SafeArea(
-          top: false,
-          child: _currentUser == null
-              ? const AuthenticationScreen()
-              : const HomeScreen(),
-        ),
+        body: _currentUser == null
+            ? const AuthenticationScreen()
+            : const HomeScreen(),
       ),
     );
   }

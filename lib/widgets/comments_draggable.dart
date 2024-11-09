@@ -51,13 +51,9 @@ class CommentsDraggableState extends State<CommentsDraggable> {
         duration: animationDuration, curve: animationCurve);
   }
 
-  void makeSheetVisible() {
-    _animateSheetTo(snaps[1]);
-  }
+  void makeSheetVisible() => _animateSheetTo(snaps[1]);
 
-  void makeSheetInvisible() {
-    _animateSheetTo(snaps[0]);
-  }
+  void makeSheetInvisible() => _animateSheetTo(snaps[0]);
 
   Future<void> _addComment() async {
     final DatabaseService database = DatabaseService.instance;
@@ -71,8 +67,13 @@ class CommentsDraggableState extends State<CommentsDraggable> {
           'content': _commentController.text,
         },
       );
-    } on Exception {
-      rethrow;
+      _commentController.clear();
+      await _loadComments();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
+      }
     }
   }
 
@@ -80,115 +81,116 @@ class CommentsDraggableState extends State<CommentsDraggable> {
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.bottomCenter,
-      child: DraggableScrollableSheet(
-        controller: draggableController,
-        initialChildSize: 0.0,
-        minChildSize: 0.0,
-        maxChildSize: 1.0,
-        snap: true,
-        snapSizes: snaps,
-        expand: false,
-        builder: (BuildContext context, ScrollController scrollController) {
-          return Container(
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 250, 246, 246),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          textTheme: Theme.of(context).textTheme.apply(
+                bodyColor: Theme.of(context).colorScheme.onSurface,
+                displayColor: Theme.of(context).colorScheme.onSurface,
+              ),
+          iconButtonTheme: IconButtonThemeData(
+            style: ButtonStyle(
+              foregroundColor: WidgetStateProperty.all<Color>(
+                Theme.of(context).colorScheme.primary,
+              ),
             ),
-            padding: const EdgeInsets.all(8),
-            width: MediaQuery.of(context).size.width,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(2),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            hintStyle: Theme.of(context)
+                .textTheme
+                .bodyMedium!
+                .copyWith(color: Theme.of(context).colorScheme.onSurface),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+        child: DraggableScrollableSheet(
+          controller: draggableController,
+          initialChildSize: 0.0,
+          minChildSize: 0.0,
+          maxChildSize: 1.0,
+          snap: true,
+          snapSizes: snaps,
+          builder: (BuildContext context, ScrollController scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+              ),
+              padding: const EdgeInsets.all(8),
+              width: MediaQuery.of(context).size.width,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        if (isLoading)
+                          const Center(child: CircularProgressIndicator())
+                        else
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 64),
+                            child: comments.isEmpty
+                                ? Center(
+                                    child: SingleChildScrollView(
+                                      controller: scrollController,
+                                      child: Text(
+                                          context.translations.noCommentFound,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .displayMedium),
+                                    ),
+                                  )
+                                : ListView.separated(
+                                    controller: scrollController,
+                                    itemCount: comments.length,
+                                    itemBuilder: (context, index) => ListTile(
+                                      title: CommentWidget(
+                                          comment: comments[index]),
+                                    ),
+                                    separatorBuilder: (context, index) =>
+                                        Divider(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary.withOpacity(0.1)),
+                                  ),
+                          ),
+                        Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: _buildCommentInput(context)),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  context.translations.comments,
-                  textAlign: TextAlign.start,
-                  style: const TextStyle(color: Colors.black, fontSize: 20),
-                ),
-                Expanded(
-                  child: Stack(
-                    children: [
-                      if (isLoading)
-                        const Center(child: CircularProgressIndicator())
-                      else
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 64),
-                          child: comments.isEmpty
-                              ? Center(
-                                  child: SingleChildScrollView(
-                                      controller: scrollController,
-                                      child: const Text('Aucun commentaire')),
-                                )
-                              : ListView.separated(
-                                  controller: scrollController,
-                                  itemCount: comments.length,
-                                  itemBuilder: (context, index) => ListTile(
-                                    title:
-                                        CommentWidget(comment: comments[index]),
-                                  ),
-                                  separatorBuilder: (context, index) =>
-                                      const Divider(),
-                                ),
-                        ),
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _commentController,
-                                  decoration: InputDecoration(
-                                    hintText: 'Ajouter un commentaire...',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              IconButton(
-                                icon: const Icon(Icons.send),
-                                onPressed: () async {
-                                  try {
-                                    await _addComment();
-                                    await _loadComments();
-                                    _commentController.clear();
-                                  } catch (e) {
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(content: Text(e.toString())),
-                                      );
-                                    }
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCommentInput(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+              child: TextField(
+                  controller: _commentController,
+                  decoration: InputDecoration(
+                      hintText: context.translations.addComment))),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.send),
+            onPressed: (){
+              if (_commentController.text.isNotEmpty) {
+                _addComment();
+              }
+            }
+          ),
+        ],
       ),
     );
   }

@@ -15,7 +15,6 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   late VideoPlayerController _controller;
   bool isPlaying = true;
 
-  /// Méthode pour mettre à jour la vidéo sans recréer le widget
   void updateVideo(Video newVideo) {
     if (newVideo.videoUrl != widget.video.videoUrl) {
       _controller.dispose();
@@ -23,11 +22,12 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     }
   }
 
-  /// Initialisation du contrôleur vidéo
   void _initializeController(Video video) {
     _controller = VideoPlayerController.networkUrl(Uri.parse(video.videoUrl))
       ..initialize().then((_) {
-        setState(() {});
+        if (mounted) {
+          setState(() {});
+        }
       }).catchError((error) {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(context.translations.errorLoadingVideo)));

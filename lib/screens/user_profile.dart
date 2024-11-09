@@ -40,9 +40,11 @@ class UserProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2, // Deux onglets : Posts et Comments
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+          iconTheme:  IconThemeData(color: Theme.of(context).colorScheme.onSurface),
           title: Text(user.username),
           bottom: TabBar(
             tabs: [

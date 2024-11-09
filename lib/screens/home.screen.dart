@@ -25,14 +25,13 @@ class HomeScreenState extends State<HomeScreen> {
   final DraggableScrollableController draggableController =
       DraggableScrollableController();
   List<Comment> comments = [];
-  List<Video> videoQueue = []; // Liste pour garder les vidéos chargées
+  List<Video> videoQueue = [];
   int currentVideoIndex = 0;
   late Video currentVideo;
 
   GlobalKey<CommentsDraggableState> commentsKey =
       GlobalKey<CommentsDraggableState>();
 
-  // GlobalKey pour contrôler VideoPlayerWidget
   GlobalKey<VideoPlayerWidgetState> videoPlayerKey =
       GlobalKey<VideoPlayerWidgetState>();
 
@@ -120,12 +119,7 @@ class HomeScreenState extends State<HomeScreen> {
         commentsKey.currentState?.makeSheetInvisible();
         videoPlayerKey.currentState?.togglePlaying();
       },
-      child: Stack(
-        children: [
-          VideoPlayerWidget(key: videoPlayerKey, video: currentVideo),
-          const Positioned(top: 0, left: 0, right: 0, child: MyAppBar()),
-        ],
-      ),
+      child: VideoPlayerWidget(key: videoPlayerKey, video: currentVideo),
     );
   }
 
@@ -136,6 +130,7 @@ class HomeScreenState extends State<HomeScreen> {
         : Stack(
             children: [
               _buildMainContent(context),
+              const Positioned(top: 0, left: 0, right: 0, child: MyAppBar()),
               CommentsDraggable(currentVideo: currentVideo, key: commentsKey),
             ],
           );

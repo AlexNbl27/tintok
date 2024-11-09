@@ -15,7 +15,13 @@ class VideoScreen extends StatelessWidget {
     final GlobalKey<CommentsDraggableState> commentsKey =
         GlobalKey<CommentsDraggableState>();
     return Scaffold(
-      appBar: AppBar(title: Text(video.title ?? '')),
+      appBar: AppBar(
+          iconTheme: Theme.of(context)
+              .iconTheme
+              .copyWith(color: Theme.of(context).colorScheme.onSurface),
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+          title: Text(video.title ?? 'jh'),
+          titleTextStyle: Theme.of(context).textTheme.displayLarge),
       body: Stack(
         children: [
           GesturesMoves(
