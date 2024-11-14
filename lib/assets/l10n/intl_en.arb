@@ -51,5 +51,7 @@
   "noCommentFound": "No comment found",
   "@noCommentFound": {},
   "seeMore": "See more",
-  "@seeMore": {}
+  "@seeMore": {},
+  "reload": "Reload",
+  "@reload": {}
 }

@@ -24,8 +24,7 @@ class DatabaseService {
     required String table,
     List<String>? columns,
     List<String>? joinTables,
-    Map<String, String>?
-        relationships, // Ajout d'un paramètre pour spécifier la relation exacte
+    Map<String, String>? relationships,
     String? conditionOnColumn,
     dynamic conditionValue,
     ConditionType? conditionType,
@@ -34,10 +33,15 @@ class DatabaseService {
     int? limit,
     int? offset,
   }) async {
-    // Concaténer les colonnes à sélectionner avec les relations exactes
-    String selectColumns = columns?.join(", ") ?? '*';
-
+    assert(
+        conditionOnColumn == null ||
+            (conditionValue != null && conditionType != null),
+        'Condition value and type must be provided if condition column is provided');
+    assert(conditionValue != null || conditionType == null,
+        'Condition value must be provided if condition type is provided');
+        
     // Gérer les relations en ajoutant `inner` explicitement avec la relation correcte
+    String selectColumns = columns?.join(", ") ?? '*';
     if (joinTables != null && joinTables.isNotEmpty) {
       String joinSelect = joinTables.map((table) {
         final relationship = relationships?[table] ?? '$table!inner';

@@ -20,15 +20,13 @@ class Video {
     required this.videoUrl,
   });
 
-  factory Video.fromMap(Map<String, dynamic> map) {
+  factory Video.fromMap(Map<String, dynamic> map, {User? author}) {
     return Video(
       uuid: map['uuid'],
       title: map['title'],
       description: map['description'],
       createdAt: DateTime.parse(map['created_at']),
-      author: map['user'] != null
-          ? User.fromMap(map['user'])
-          : (User(username: "Unknown", uuid: "", createdAt: DateTime.now())),
+      author: author ?? (User(username: "Unknown", uuid: "", createdAt: DateTime.now())),
       videoUrl: map['url'],
     );
   }
@@ -43,10 +41,12 @@ class Video {
           conditionValue: uuid,
           conditionType: ConditionType.equal,
           offset: pagination * nbCommentsPerPage,
-          limit: nbCommentsPerPage);
-      List<Comment> comments = await Future.wait(
-          list.map((map) async => await Comment.fromMap(map)));
-      return comments;
+          limit: nbCommentsPerPage,
+          joinTables: [SupabaseConstant.usersTable]);
+      return list.map((comment) {
+        return Comment.fromMap(comment,
+            author: User.fromMap(comment[SupabaseConstant.usersTable]));
+      }).toList();
     } on Exception {
       throw Exception('Error while fetching comments');
     }

@@ -18,23 +18,27 @@ class UserProfile extends StatelessWidget {
       conditionOnColumn: 'user_uuid',
       conditionType: ConditionType.equal,
       conditionValue: user.uuid,
-      joinTables: [SupabaseConstant.videosTable],
+      joinTables: [SupabaseConstant.videosTable, SupabaseConstant.usersTable],
     ).then((List<Map<String, dynamic>> likes) async {
       return likes.map((like) {
-        final videoMap = like['video'] as Map<String, dynamic>;
-        return Video.fromMap(videoMap);
+        final videoMap = like[SupabaseConstant.videosTable];
+        return Video.fromMap(videoMap,
+            author: User.fromMap(like[SupabaseConstant.usersTable]));
       }).toList();
     });
   }
 
   Future<List<Video>> _getCreatedVideos() async {
-    final videoMaps = await database.getElements(
+    return await database
+        .getElements(
       table: SupabaseConstant.videosTable,
       conditionOnColumn: 'author_uuid',
       conditionType: ConditionType.equal,
       conditionValue: user.uuid,
-    );
-    return videoMaps.map((videoMap) => Video.fromMap(videoMap)).toList();
+    )
+        .then((List<Map<String, dynamic>> videos) {
+      return videos.map((video) => Video.fromMap(video, author: user)).toList();
+    });
   }
 
   @override
@@ -44,7 +48,8 @@ class UserProfile extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-          iconTheme:  IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+          iconTheme:
+              IconThemeData(color: Theme.of(context).colorScheme.onSurface),
           title: Text(user.username),
           bottom: TabBar(
             tabs: [
@@ -62,7 +67,9 @@ class UserProfile extends StatelessWidget {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const SizedBox();
                 } else if (snapshot.hasError) {
-                  return Center(child: Text('${context.translations.error} : ${snapshot.error}'));
+                  return Center(
+                      child: Text(
+                          '${context.translations.error} : ${snapshot.error}'));
                 } else if (snapshot.hasData) {
                   return PostsTab(videos: snapshot.data!);
                 } else {
@@ -77,7 +84,9 @@ class UserProfile extends StatelessWidget {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const SizedBox();
                 } else if (snapshot.hasError) {
-                  return Center(child: Text('${context.translations.error} : ${snapshot.error}'));
+                  return Center(
+                      child: Text(
+                          '${context.translations.error} : ${snapshot.error}'));
                 } else if (snapshot.hasData) {
                   return PostsTab(videos: snapshot.data!);
                 } else {

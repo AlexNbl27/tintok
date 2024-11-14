@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get_thumbnail_video/index.dart';
 import 'package:get_thumbnail_video/video_thumbnail.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:tintok/models/video.model.dart';
 import 'package:tintok/screens/video.screen.dart';
 import 'package:tintok/tools/extensions/context.extension.dart';
@@ -38,7 +39,9 @@ class PreviewVideoWidgetState extends State<PreviewVideoWidget>
       future: _generateThumbnail(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Skeletonizer.zone(
+              enabled: true,
+              child: AspectRatio(aspectRatio: 16 / 9, child: Bone.square()));
         } else if (snapshot.hasError) {
           return Center(child: Text(context.translations.errorLoadingVideo));
         } else if (!snapshot.hasData) {

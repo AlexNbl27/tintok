@@ -11,11 +11,12 @@ class Comment {
     required this.date,
   });
 
-  static Future<Comment> fromMap(Map<String, dynamic> map) async {
-    User author = await User.getFromUuid(map['author_uuid']);
+  factory Comment.fromMap(Map<String, dynamic> map, {User? author}) {
     return Comment(
       text: map['content'],
-      author: author,
+      author: author != null
+          ? User.fromMap(map['user'])
+          : (User(username: "Unknown", uuid: "", createdAt: DateTime.now())),
       date: DateTime.parse(map['created_at']),
     );
   }
